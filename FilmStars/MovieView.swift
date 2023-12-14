@@ -6,9 +6,6 @@
 //
 
 import UIKit
-import WebKit
-
-var link: String = ""
 
 class MovieView: UIViewController {
     
@@ -25,7 +22,6 @@ class MovieView: UIViewController {
     var isStarFilled: Bool = false
     var index: Int = 0
     var startFromFavourites: Bool = false
-    lazy var urlToWatch: String = { return link + String(filmId) + "/" }()
     
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -146,10 +142,6 @@ class MovieView: UIViewController {
             isStarFilled = false
         }
         saveFavouriteToUserDefaults(movies: favourite)
-        print("arr:")
-        for (index, movie) in favourite.enumerated() {
-            print("\(index)) \(String(describing: movie.nameRu))")
-        }
     }
     
     override func viewDidLoad() {
@@ -242,24 +234,6 @@ class MovieView: UIViewController {
             filmDescriptionLabel.topAnchor.constraint(equalTo: filmRatingCountLabel.bottomAnchor, constant: 40),
             filmDescriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
             filmDescriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            
-            watchInBrowserButton.topAnchor.constraint(equalTo: filmDescriptionLabel.bottomAnchor, constant: 12),
-            watchInBrowserButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            watchInBrowserButton.widthAnchor.constraint(equalToConstant: 200),
-            
-            webView.topAnchor.constraint(equalTo: watchInBrowserButton.bottomAnchor, constant: 12),
-            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
-            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
-            webView.heightAnchor.constraint(equalToConstant: 400),
-            
-            webView.topAnchor.constraint(equalTo: webViewContainer.topAnchor),
-            webView.leadingAnchor.constraint(equalTo: webViewContainer.leadingAnchor),
-            webView.trailingAnchor.constraint(equalTo: webViewContainer.trailingAnchor),
-            webView.bottomAnchor.constraint(equalTo: webViewContainer.bottomAnchor, constant: -50),
-            
-            reloadButton.topAnchor.constraint(equalTo: webView.bottomAnchor, constant: 12),
-            reloadButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            reloadButton.widthAnchor.constraint(equalToConstant: 200)
         ])
     }
 }
