@@ -56,7 +56,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             searchMovies(withName: searchText)
             tableView.reloadData()
             view.endEditing(true)
-            saveMoviesToUserDefaults(movies: movies)
         }
     }
     
@@ -65,7 +64,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             searchMovies(withName: searchText)
             tableView.reloadData()
             view.endEditing(true)
-            saveMoviesToUserDefaults(movies: movies)
         }
         return true
     }
@@ -93,7 +91,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             overrideUserInterfaceStyle = .light
         }
         
-        movies = loadMoviesFromUserDefaults()
+        movies = loadMoviesFromFileManager(fileName: "lastSearch")
         favourite = loadFavouriteFromUserDefaults()
         
         searchTextField.delegate = self
@@ -225,7 +223,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 movies = response.films
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
-                    saveMoviesToUserDefaults(movies: movies)
+                    saveMoviesToFileManager(movies: movies, fileName: "lastSearch")
                 }
             } catch {
                 print("Error: \(error)")
@@ -263,28 +261,26 @@ struct SearchResponse: Codable {
     }
 }
 
-func saveMoviesToUserDefaults(movies: [SearchResponse.Movie]) {
-    let userDefaults = UserDefaults.standard
+func saveMoviesToFileManager(movies: [SearchResponse.Movie], fileName: String) {
     do {
         let encoder = JSONEncoder()
         let encodedData = try encoder.encode(movies)
-        userDefaults.set(encodedData, forKey: "movies")
-        userDefaults.synchronize()
+        let fileURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName)
+        try encodedData.write(to: fileURL)
     } catch {
-        print("Ошибка при кодировании данных: \(error.localizedDescription)")
+        print("Ошибка при сохранении данных в FileManager: \(error.localizedDescription)")
     }
 }
 
-func loadMoviesFromUserDefaults() -> [SearchResponse.Movie] {
-    let userDefaults = UserDefaults.standard
-    if let savedData = userDefaults.data(forKey: "movies") {
-        do {
-            let decoder = JSONDecoder()
-            let loadedMovies = try decoder.decode([SearchResponse.Movie].self, from: savedData)
-            return loadedMovies
-        } catch {
-            print("Ошибка при раскодировании данных: \(error.localizedDescription)")
-        }
+func loadMoviesFromFileManager(fileName: String) -> [SearchResponse.Movie] {
+    let fileURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName)
+    do {
+        let savedData = try Data(contentsOf: fileURL)
+        let decoder = JSONDecoder()
+        let loadedMovies = try decoder.decode([SearchResponse.Movie].self, from: savedData)
+        return loadedMovies
+    } catch {
+        print("Ошибка при загрузке данных из FileManager: \(error.localizedDescription)")
     }
     return []
 }
